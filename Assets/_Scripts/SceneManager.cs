@@ -6,7 +6,7 @@ using UnityEngine;
 public class SceneManager : MonoBehaviour
 {
     // Start is called before the first frame update
-    public void LoadScene(string scene)
+    public void LoadScene(int scene)
     {
         Application.LoadLevel(scene);
     }
@@ -17,7 +17,7 @@ public class SceneManager : MonoBehaviour
         {
             if (Application.loadedLevelName == "Play Scene")
             {
-                Application.LoadLevel("Start Scene");
+                Application.LoadLevel(0);
             }
             else
             { 
