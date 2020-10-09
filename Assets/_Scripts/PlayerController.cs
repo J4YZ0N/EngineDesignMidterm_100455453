@@ -2,7 +2,7 @@
 //Programmer: Jayson MacFarlane
 //Student ID: 100455453
 //Date: October 1, 2020
-//Verion 1.2
+//Verion 1.7
 
 using System.Collections;
 using System.Collections.Generic;
@@ -11,12 +11,13 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    Vector3 spawnPoint = new Vector3 (0, 5, 225);
+
     //Speed sets how fast the player goes, rigidbody allows use of physics
-    public float speed = 50;
+    public float speed = 10;
     Rigidbody rigidbody;
 
-    //The door player is currently in front of and wants to test
-    private GameObject currentDoor;
+    float jump = 0.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +33,47 @@ public class PlayerController : MonoBehaviour
         float vAxis = Input.GetAxis("Vertical");
 
         //Moves character
-        Vector3 movement = new Vector3(hAxis, 0, vAxis) * speed * Time.deltaTime;
-        rigidbody.MovePosition(transform.position + movement);
+        Vector3 movement = new Vector3(hAxis, jump, vAxis) * speed * Time.deltaTime;
+        rigidbody.AddRelativeForce(movement, ForceMode.Impulse);
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jump = 20.0f;
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Checkpoint"))
+        {
+            spawnPoint = other.transform.position;
+            other.enabled = false;
+        }
+
+        if (other.CompareTag("End"))
+        {
+            Application.LoadLevel(2);
+        }
+
+        if (other.CompareTag("DeathPit"))
+        {
+            this.transform.position = spawnPoint;
+        }
+
+        if (other.CompareTag("Mover"))
+        {
+            this.transform.parent = other.transform;
+        }
+
+        if (other.CompareTag("Ceiling"))
+        {
+            jump = -2.0f;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        this.transform.parent = null;
+        jump = 0.0f;
     }
 }

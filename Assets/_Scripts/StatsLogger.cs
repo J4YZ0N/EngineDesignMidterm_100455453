@@ -1,11 +1,17 @@
-﻿using System.Collections;
+﻿//Description: Logs checkpoint times to .DLL file
+//Programmer: Jayson MacFarlane
+//Student ID: 100455453
+//Date: October 8, 2020
+//Verion 1.2
+
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class StatsLogger : MonoBehaviour
 {
-    const string DLL_NAME = "EngineDLLTut";
+    const string DLL_NAME = "MidtermCode";
 
     [DllImport(DLL_NAME)]
     private static extern void ResetLogger();
@@ -13,78 +19,36 @@ public class StatsLogger : MonoBehaviour
     [DllImport(DLL_NAME)]
     private static extern void SaveCheckpointTime(float RTBC);
 
-    [DllImport(DLL_NAME)]
-    private static extern float GetTotalTime();
-
-    [DllImport(DLL_NAME)]
-    private static extern float GetCheckpointTime(int index);
-
-    [DllImport(DLL_NAME)]
-    private static extern int GetNumCheckpoints();
-
+    float timer = 0.0f;
     float lastTime = 0.0f;
 
-    public void SaveTimeTest(float checkpointTime)
+    private void OnLevelWasLoaded(int level)
     {
-        SaveCheckpointTime(checkpointTime);
-    }
-
-    public float LoadTimeTest(int index)
-    {
-        if (index >= GetNumCheckpoints())
+        if (level == 1)
         {
-            return -1.0f;
-        }
-        else
-        {
-            return GetCheckpointTime(index);
+            timer = 0.0f;
         }
     }
 
-    public float LoadTotalTimeTest()
+    private void Update()
     {
-        return GetTotalTime();
+        timer += Time.deltaTime;
     }
 
-    public void ResetLoggerTest()
+    void OnTriggerEnter(Collider checkpoint)
     {
-        ResetLogger();
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        lastTime = Time.time;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (checkpoint.CompareTag("Checkpoint") || checkpoint.CompareTag("End"))
         {
-            float currentTime = Time.time;
+            float currentTime = timer;
             float checkpointTime = currentTime - lastTime;
             lastTime = currentTime;
 
-            SaveTimeTest(checkpointTime);
-        }
-
-        for (int i = 0; i < 10; i++)
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha0+i))
-            {
-                Debug.Log(LoadTimeTest(i));
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            Debug.Log(LoadTotalTimeTest());
+            SaveCheckpointTime(checkpointTime);
         }
     }
 
-    void OnDestroy()
+    void OnApplicationQuit()
     {
-        ResetLoggerTest();
+            ResetLogger();
     }
 }
